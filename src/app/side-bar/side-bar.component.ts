@@ -65,7 +65,7 @@ export class SideBarComponent implements OnInit {
       roles: ['GERENTE_COMPRAS', 'GERENTE_SUPERMERCADO'],
       submenu: [
         { label: 'Órdenes de Compra', icon: 'receipt', path: '/compras/ordenes', roles: ['GERENTE_COMPRAS', 'GERENTE_SUPERMERCADO'] },
-        { label: 'Proveedores', icon: 'local_shipping', path: '/compras/proveedores', roles: ['GERENTE_COMPRAS', 'GERENTE_SUPERMERCADO'] }
+        { label: 'Proveedores', icon: 'local_shipping', path: '/compras/facturas', roles: ['GERENTE_COMPRAS', 'GERENTE_SUPERMERCADO'] }
       ]
     },
     {

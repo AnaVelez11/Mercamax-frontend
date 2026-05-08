@@ -1,0 +1,126 @@
+<!-- src/app/compras/facturas-compras/facturas-compras.component.html -->
+<div class="facturas-container">
+
+  <div class="page-header">
+    <div>
+      <h2><i class="fas fa-file-invoice-dollar"></i> Facturas de Proveedores</h2>
+      <p>Gestión de pagos a proveedores</p>
+    </div>
+    <button class="btn-refresh" (click)="cargarFacturas()">
+      <i class="fas fa-sync-alt"></i> Actualizar
+    </button>
+  </div>
+
+  <div class="loading" *ngIf="cargando">
+    <i class="fas fa-spinner fa-spin"></i><p>Cargando facturas...</p>
+  </div>
+
+  <div class="tabla-container" *ngIf="!cargando">
+    <table class="tabla-facturas" *ngIf="facturas.length > 0">
+      <thead>
+      <tr>
+        <th>N° Factura</th>
+        <th>Proveedor</th>
+        <th>Fecha Emisión</th>
+        <th>Vencimiento</th>
+        <th>Total</th>
+        <th>Pagado</th>
+        <th>Pendiente</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let f of facturas">
+        <td><strong>{{ f.numero_factura }}</strong></td>
+        <td>{{ f.proveedor_nombre }}</td>
+        <td>{{ formatearFecha(f.fecha_emision) }}</td>
+        <td>{{ formatearFecha(f.fecha_vencimiento || '') }}</td>
+        <td>{{ fmt(f.monto_total) }}</td>
+        <td class="pagado">{{ fmt(f.monto_pagado) }}</td>
+        <td class="pendiente" [class.sin-pendiente]="f.estado === 'PAGADA'">
+          {{ f.estado === 'PAGADA' ? '—' : fmt(f.monto_pendiente) }}
+        </td>
+        <td>
+          <span class="badge" [ngClass]="getEstadoClass(f.estado)">{{ f.estado }}</span>
+        </td>
+        <td>
+          <button class="btn-pago" *ngIf="f.estado !== 'PAGADA'"
+                  (click)="abrirPago(f)" title="Registrar pago">
+            <i class="fas fa-dollar-sign"></i> Pagar
+          </button>
+          <span class="pagado-completo" *ngIf="f.estado === 'PAGADA'">
+              <i class="fas fa-check-circle"></i> Pagada
+            </span>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div class="sin-facturas" *ngIf="facturas.length === 0">
+      <i class="fas fa-file-invoice"></i>
+      <p>No hay facturas registradas aún</p>
+      <span>Las facturas aparecen al recepcionar una orden aprobada</span>
+    </div>
+  </div>
+
+  <!-- Modal pago -->
+  <div class="modal-overlay" *ngIf="mostrarModalPago" (click)="cerrarModal()"></div>
+  <div class="modal-card" *ngIf="mostrarModalPago && facturaSeleccionada">
+    <div class="modal-header">
+      <div>
+        <h3>Registrar Pago</h3>
+        <p>{{ facturaSeleccionada.numero_factura }} · {{ facturaSeleccionada.proveedor_nombre }}</p>
+      </div>
+      <button class="btn-cerrar" (click)="cerrarModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="saldo-info">
+        <div class="saldo-item">
+          <span>Total factura</span>
+          <strong>{{ fmt(facturaSeleccionada.monto_total) }}</strong>
+        </div>
+        <div class="saldo-item">
+          <span>Ya pagado</span>
+          <strong class="pagado">{{ fmt(facturaSeleccionada.monto_pagado) }}</strong>
+        </div>
+        <div class="saldo-item pendiente-row">
+          <span>Saldo pendiente</span>
+          <strong>{{ fmt(facturaSeleccionada.monto_pendiente) }}</strong>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Monto a pagar <span class="req">*</span></label>
+        <input type="number" [(ngModel)]="pagoMonto"
+               [max]="facturaSeleccionada.monto_pendiente" min="0"
+               class="form-control" />
+      </div>
+      <div class="form-group">
+        <label>Método de pago <span class="req">*</span></label>
+        <select [(ngModel)]="pagoMetodo" class="form-control">
+          <option *ngFor="let m of metodosPago" [value]="m.value">{{ m.label }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>N° Comprobante <span class="req">*</span></label>
+        <input type="text" [(ngModel)]="pagoComprobante" class="form-control"
+               placeholder="Referencia o número de transacción" />
+      </div>
+      <div class="form-group">
+        <label>Notas <span class="opcional">(opcional)</span></label>
+        <input type="text" [(ngModel)]="pagoNotas" class="form-control" />
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar-modal" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-guardar-modal" (click)="registrarPago()" [disabled]="procesando">
+        <i class="fas fa-check"></i>
+        {{ procesando ? 'Registrando...' : 'Confirmar Pago' }}
+      </button>
+    </div>
+  </div>
+
+</div>

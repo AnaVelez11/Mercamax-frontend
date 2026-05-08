@@ -15,6 +15,10 @@ import { LotesComponent } from './lotes/lotes.component';
 import { StockComponent } from './stock/stock.component';
 import { PuntoVentaComponent } from './punto-venta/punto-venta.component';
 import { HistorialVentasComponent } from './historial-ventas/historial-ventas.component';
+import { OrdenesCompraComponent } from './compras/ordenes-compra/ordenes-compra.component';
+import { CrearOrdenComponent } from './compras/crear-orden/crear-orden.component';
+import { DetalleOrdenComponent } from './compras/detalle-orden/detalle-orden.component';
+import { FacturasComprasComponent } from './compras/facturas-compras/facturas-compras.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export function activateAccountMatcher(segments: UrlSegment[]): UrlMatchResult | null {
@@ -41,7 +45,11 @@ const children: Routes = [
   { path: 'inventario/reportes', component: ReportesComponent, canActivate: [AuthGuard] },
   { path: 'ventas/punto-venta', component: PuntoVentaComponent, canActivate: [AuthGuard] },
   { path: 'ventas/historial', component: HistorialVentasComponent, canActivate: [AuthGuard] },
-  { path: 'admin/invite-user', component: InviteUserComponent, canActivate: [AdminGuard] }
+  { path: 'admin/invite-user', component: InviteUserComponent, canActivate: [AdminGuard] },
+  { path: 'compras/ordenes', component: OrdenesCompraComponent, canActivate: [AuthGuard] },
+  { path: 'compras/nueva-orden', component: CrearOrdenComponent, canActivate: [AuthGuard] },
+  { path: 'compras/orden/:id', component: DetalleOrdenComponent, canActivate: [AuthGuard] },
+  { path: 'compras/facturas', component: FacturasComprasComponent, canActivate: [AuthGuard] },
 ];
 
 export const routes: Routes = [

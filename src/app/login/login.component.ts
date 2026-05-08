@@ -149,7 +149,7 @@ export class LoginComponent implements OnInit{
       'ENCARGADO_INVENTARIO':  '/inventario/productos',
       'GERENTE_SUPERMERCADO':  '/inventario/productos',
       'CAJERO':                '/ventas/punto-venta',
-      'GERENTE_COMPRAS':       '/compras/bienvenida',  // placeholder por ahora
+      'GERENTE_COMPRAS':       '/compras/ordenes',  // placeholder por ahora
     };
     this.router.navigate([rutas[rol] || '/inventario/productos']);
   }

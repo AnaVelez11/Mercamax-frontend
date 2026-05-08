@@ -1,0 +1,137 @@
+// src/app/compras/facturas-compras/facturas-compras.component.scss
+
+.facturas-container { padding: 20px; }
+
+.page-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 20px;
+  h2 { font-size: 20px; font-weight: 700; color: #333; margin: 0 0 4px 0;
+    display: flex; align-items: center; gap: 10px;
+    i { color: #f59e0b; }
+  }
+  p { font-size: 13px; color: #888; margin: 0; }
+  .btn-refresh {
+    background: white; border: 1.5px solid #e0e0e0; border-radius: 8px;
+    padding: 8px 16px; font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    &:hover { border-color: #1a56db; color: #1a56db; }
+  }
+}
+
+.loading {
+  text-align: center; padding: 40px; color: #1a56db;
+  i { font-size: 28px; margin-bottom: 8px; display: block; }
+}
+
+.tabla-container {
+  background: white; border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;
+}
+
+.tabla-facturas {
+  width: 100%; border-collapse: collapse;
+  thead tr { background: #f8f9fa; border-bottom: 2px solid #e0e0e0;
+    th { padding: 14px 16px; text-align: left; font-size: 12px;
+      font-weight: 600; color: #555; text-transform: uppercase; }
+  }
+  tbody tr { border-bottom: 1px solid #f0f0f0;
+    &:last-child { border-bottom: none; }
+    td { padding: 12px 16px; font-size: 14px; color: #333; }
+  }
+  .pagado { color: #27AE60; font-weight: 600; }
+  .pendiente { color: #e74c3c; font-weight: 600; }
+  .sin-pendiente { color: #888; }
+  .btn-pago {
+    background: #1a56db; color: white; border: none; border-radius: 6px;
+    padding: 6px 12px; font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    &:hover { background: #1345b0; }
+  }
+  .pagado-completo {
+    color: #27AE60; font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; gap: 4px;
+  }
+}
+
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+  &.badge-pendiente { background: #fff3cd; color: #856404; }
+  &.badge-parcial { background: #fde8d8; color: #7a3e00; }
+  &.badge-pagada { background: #d4edda; color: #155724; }
+}
+
+.sin-facturas {
+  text-align: center; padding: 60px 20px; color: #bbb;
+  i { font-size: 48px; margin-bottom: 12px; display: block; }
+  p { font-size: 16px; color: #999; margin: 0 0 4px 0; }
+  span { font-size: 13px; }
+}
+
+// Modal
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 2000;
+}
+
+.modal-card {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: white; border-radius: 16px; width: 480px; max-width: 95vw;
+  z-index: 2001; box-shadow: 0 8px 32px rgba(0,0,0,0.2); overflow: hidden;
+}
+
+.modal-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 20px 24px 16px; border-bottom: 1px solid #f0f0f0; background: #f8f9fa;
+  h3 { font-size: 18px; font-weight: 700; color: #333; margin: 0 0 4px 0; }
+  p { font-size: 13px; color: #888; margin: 0; }
+  .btn-cerrar {
+    background: none; border: none; font-size: 18px; color: #aaa;
+    cursor: pointer; padding: 4px 8px;
+    &:hover { color: #333; }
+  }
+}
+
+.modal-body { padding: 20px 24px; }
+
+.saldo-info {
+  background: #f8f9fa; border-radius: 10px; padding: 14px;
+  margin-bottom: 16px; display: flex; gap: 16px; justify-content: space-between;
+  .saldo-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    span { font-size: 12px; color: #888; }
+    strong { font-size: 15px; color: #333; }
+    &.pendiente-row strong { color: #e74c3c; font-size: 17px; }
+    .pagado { color: #27AE60; }
+  }
+}
+
+.form-group {
+  margin-bottom: 14px;
+  label {
+    display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px;
+    .req { color: #e74c3c; margin-left: 2px; }
+    .opcional { font-weight: 400; color: #aaa; font-size: 12px; }
+  }
+  .form-control {
+    width: 100%; padding: 9px 12px; border: 1.5px solid #e0e0e0;
+    border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box;
+    &:focus { border-color: #1a56db; }
+  }
+}
+
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 16px 24px; border-top: 1px solid #f0f0f0;
+  .btn-cancelar-modal {
+    background: #f0f0f0; border: none; border-radius: 8px;
+    padding: 10px 18px; font-size: 14px; cursor: pointer;
+    &:hover { background: #e0e0e0; }
+  }
+  .btn-guardar-modal {
+    background: #1a56db; color: white; border: none; border-radius: 8px;
+    padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    &:hover:not(:disabled) { background: #1345b0; }
+    &:disabled { background: #aaa; cursor: not-allowed; }
+  }
+}

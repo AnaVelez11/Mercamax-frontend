@@ -1,0 +1,103 @@
+// src/app/compras/ordenes-compra/ordenes-compra.component.scss
+
+.ordenes-container { padding: 20px; }
+
+.page-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 20px;
+  h2 { font-size: 20px; font-weight: 700; color: #333; margin: 0 0 4px 0;
+    display: flex; align-items: center; gap: 10px;
+    i { color: #1a56db; }
+  }
+  p { font-size: 13px; color: #888; margin: 0; }
+}
+
+.btn-nueva {
+  background: #1a56db; color: white; border: none; border-radius: 8px;
+  padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  &:hover { background: #1345b0; }
+}
+
+.filtros-bar {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 16px;
+  background: white; padding: 12px 16px; border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+
+  .filtro-group {
+    display: flex; align-items: center; gap: 8px;
+    label { font-size: 13px; font-weight: 600; color: #555; }
+  }
+
+  .select-filtro {
+    padding: 7px 12px; border: 1.5px solid #e0e0e0; border-radius: 8px;
+    font-size: 13px; outline: none; cursor: pointer;
+    &:focus { border-color: #1a56db; }
+  }
+
+  .btn-refresh {
+    background: white; border: 1.5px solid #e0e0e0; border-radius: 8px;
+    padding: 7px 14px; font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; margin-left: auto;
+    &:hover { border-color: #1a56db; color: #1a56db; }
+  }
+}
+
+.loading {
+  text-align: center; padding: 40px; color: #1a56db;
+  i { font-size: 28px; margin-bottom: 8px; display: block; }
+}
+
+.tabla-container {
+  background: white; border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden;
+}
+
+.tabla-ordenes {
+  width: 100%; border-collapse: collapse;
+
+  thead tr {
+    background: #f8f9fa; border-bottom: 2px solid #e0e0e0;
+    th {
+      padding: 14px 16px; text-align: left; font-size: 12px;
+      font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #f0f0f0; transition: background 0.2s; cursor: pointer;
+    &:hover { background: #f0f4ff; }
+    &:last-child { border-bottom: none; }
+    td { padding: 12px 16px; font-size: 14px; color: #333; }
+  }
+
+  .total-cell { font-weight: 700; color: #1a56db; }
+}
+
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+  &.badge-pendiente { background: #fff3cd; color: #856404; }
+  &.badge-aprobada { background: #d4edda; color: #155724; }
+  &.badge-rechazada { background: #f8d7da; color: #721c24; }
+  &.badge-recibida { background: #cce5ff; color: #004085; }
+  &.badge-parcial { background: #fde8d8; color: #7a3e00; }
+  &.badge-cancelada { background: #e2e3e5; color: #383d41; }
+}
+
+.acciones {
+  display: flex; gap: 6px;
+  .btn-accion {
+    border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer;
+  }
+  .btn-ver { background: #e8f0fe; color: #1a56db; &:hover { background: #d0e2ff; } }
+}
+
+.sin-ordenes {
+  text-align: center; padding: 60px 20px; color: #bbb;
+  i { font-size: 48px; margin-bottom: 12px; display: block; }
+  p { font-size: 16px; color: #999; margin: 0 0 16px 0; }
+}
+
+.badge-pagada { background: #d4edda; color: #155724; margin-left: 4px; }
+.badge-pendiente-pago { background: #fff3cd; color: #856404; margin-left: 4px; }

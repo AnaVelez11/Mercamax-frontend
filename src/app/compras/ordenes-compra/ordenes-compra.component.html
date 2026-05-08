@@ -1,0 +1,86 @@
+<!-- src/app/compras/ordenes-compra/ordenes-compra.component.html -->
+<div class="ordenes-container">
+
+  <div class="page-header">
+    <div>
+      <h2><i class="fas fa-shopping-bag"></i> Órdenes de Compra</h2>
+      <p>Gestión de pedidos a proveedores</p>
+    </div>
+    <button class="btn-nueva" (click)="nuevaOrden()">
+      <i class="fas fa-plus"></i> Nueva Orden
+    </button>
+  </div>
+
+  <!-- Filtro -->
+  <div class="filtros-bar">
+    <div class="filtro-group">
+      <label>Filtrar por estado:</label>
+      <select [(ngModel)]="filtroEstado" (change)="filtrar()" class="select-filtro">
+        <option *ngFor="let op of estadoOpciones" [value]="op.value">{{ op.label }}</option>
+      </select>
+    </div>
+    <button class="btn-refresh" (click)="cargarOrdenes()">
+      <i class="fas fa-sync-alt"></i> Actualizar
+    </button>
+  </div>
+
+  <!-- Cargando -->
+  <div class="loading" *ngIf="cargando">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Cargando órdenes...</p>
+  </div>
+
+  <!-- Tabla -->
+  <div class="tabla-container" *ngIf="!cargando">
+    <table class="tabla-ordenes" *ngIf="ordenesFiltradas.length > 0">
+      <thead>
+      <tr>
+        <th>N° Orden</th>
+        <th>Proveedor</th>
+        <th>Creado por</th>
+        <th>Fecha Creación</th>
+        <th>Entrega Estimada</th>
+        <th>Total</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let orden of ordenesFiltradas" (click)="verOrden(orden)" class="fila-orden">
+        <td><strong>{{ orden.numero_orden }}</strong></td>
+        <td>{{ orden.proveedor_nombre }}</td>
+        <td>{{ orden.creado_por_nombre }}</td>
+        <td>{{ formatearFecha(orden.fecha_creacion) }}</td>
+        <td>{{ formatearFecha(orden.fecha_estimada_entrega) }}</td>
+        <td class="total-cell">{{ fmt(orden.total) }}</td>
+        <td>
+          <span class="badge" [ngClass]="getEstadoClass(orden.estado)">
+            {{ orden.estado }}
+          </span>
+                  <span class="badge badge-pagada" *ngIf="orden.estado_pago === 'PAGADA'">
+            💰 Pagada
+          </span>
+                  <span class="badge badge-pendiente-pago"
+                        *ngIf="orden.estado_pago === 'PENDIENTE' || orden.estado_pago === 'PARCIAL'">
+            ⏳ Pago pendiente
+          </span>
+        </td>
+        <td class="acciones" (click)="$event.stopPropagation()">
+          <button class="btn-accion btn-ver" (click)="verOrden(orden)" title="Ver detalle">
+            <i class="fas fa-eye"></i>
+          </button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div class="sin-ordenes" *ngIf="ordenesFiltradas.length === 0">
+      <i class="fas fa-shopping-bag"></i>
+      <p>No hay órdenes de compra registradas</p>
+      <button class="btn-nueva" (click)="nuevaOrden()">
+        <i class="fas fa-plus"></i> Crear primera orden
+      </button>
+    </div>
+  </div>
+
+</div>

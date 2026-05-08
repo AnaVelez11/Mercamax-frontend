@@ -1,0 +1,228 @@
+<!-- src/app/compras/detalle-orden/detalle-orden.component.html -->
+<div class="detalle-container">
+
+  <!-- Cargando -->
+  <div class="loading" *ngIf="cargando">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Cargando orden...</p>
+  </div>
+
+  <ng-container *ngIf="!cargando && orden">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h2>
+          <i class="fas fa-file-invoice"></i>
+          {{ orden.numero_orden }}
+          <span class="badge" [ngClass]="getEstadoClass(orden.estado)">{{ orden.estado }}</span>
+        </h2>
+        <p>{{ orden.proveedor_nombre }} · Creado por {{ orden.creado_por_nombre }}</p>
+      </div>
+      <button class="btn-volver" (click)="volver()">
+        <i class="fas fa-arrow-left"></i> Volver
+      </button>
+    </div>
+
+    <!-- Info general -->
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-row"><span class="lbl">Proveedor</span><span>{{ orden.proveedor_nombre }}</span></div>
+        <div class="info-row"><span class="lbl">Fecha Creación</span><span>{{ formatearFecha(orden.fecha_creacion) }}</span></div>
+        <div class="info-row"><span class="lbl">Entrega Estimada</span><span>{{ formatearFecha(orden.fecha_estimada_entrega) }}</span></div>
+        <div class="info-row" *ngIf="orden.fecha_recepcion">
+          <span class="lbl">Fecha Recepción</span><span>{{ formatearFecha(orden.fecha_recepcion) }}</span>
+        </div>
+        <div class="info-row" *ngIf="orden.aprobado_por_nombre">
+          <span class="lbl">Aprobado por</span><span>{{ orden.aprobado_por_nombre }}</span>
+        </div>
+        <div class="info-row" *ngIf="orden.motivo_rechazo">
+          <span class="lbl">Motivo rechazo</span>
+          <span class="motivo-rechazo">{{ orden.motivo_rechazo }}</span>
+        </div>
+        <div class="info-row" *ngIf="orden.notas">
+          <span class="lbl">Notas</span><span>{{ orden.notas }}</span>
+        </div>
+      </div>
+
+      <div class="total-card">
+        <span class="total-label">Total de la Orden</span>
+        <span class="total-valor">{{ fmt(orden.total) }}</span>
+      </div>
+    </div>
+
+    <!-- Tabla de productos -->
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-boxes"></i> Productos Solicitados</h3>
+      <table class="tabla-productos">
+        <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad Solicitada</th>
+          <th>Cantidad Recibida</th>
+          <th>Costo Unitario</th>
+          <th>Subtotal</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let det of orden.detalles">
+          <td>{{ det.producto_nombre }}</td>
+          <td>{{ det.cantidad_solicitada }}</td>
+          <td>
+              <span [class.recibido-completo]="(det.cantidad_recibida || 0) >= det.cantidad_solicitada"
+                    [class.recibido-parcial]="(det.cantidad_recibida || 0) > 0 && (det.cantidad_recibida || 0) < det.cantidad_solicitada">
+                {{ det.cantidad_recibida || 0 }}
+              </span>
+          </td>
+          <td>{{ fmt(det.costo_unitario) }}</td>
+          <td><strong>{{ fmt(det.cantidad_solicitada * det.costo_unitario) }}</strong></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="acciones-bar">
+      <!-- Aprobar/Rechazar — solo Gerente Supermercado cuando está PENDIENTE -->
+      <ng-container *ngIf="esGerente && orden.estado === 'PENDIENTE'">
+        <button class="btn-aprobar" (click)="aprobar()" [disabled]="procesando">
+          <i class="fas fa-check"></i> Aprobar Orden
+        </button>
+        <button class="btn-rechazar" (click)="rechazar()" [disabled]="procesando">
+          <i class="fas fa-times"></i> Rechazar
+        </button>
+      </ng-container>
+
+      <!-- Recepcionar — cuando está APROBADA o PARCIAL -->
+      <button class="btn-recepcionar"
+              *ngIf="(orden.estado === 'APROBADA' || orden.estado === 'PARCIAL')
+         && esGerenteCompras
+         && !orden.tiene_factura"
+              (click)="abrirRecepcionar()" [disabled]="procesando">
+        <i class="fas fa-truck-loading"></i> Recepcionar Mercancía
+      </button>
+
+      <!-- Registrar factura — cuando está RECIBIDA o PARCIAL y no tiene factura aún -->
+      <button class="btn-factura"
+              *ngIf="(orden.estado === 'RECIBIDA' || orden.estado === 'PARCIAL')
+         && esGerenteCompras
+         && !orden.tiene_factura"
+              (click)="abrirFactura()" [disabled]="procesando">
+        <i class="fas fa-file-invoice-dollar"></i> Registrar Factura
+      </button>
+    </div>
+
+    <!-- PANEL: Recepcionar -->
+    <div class="panel-recepcion" *ngIf="panelActivo === 'recepcionar'">
+      <div class="panel-header">
+        <h3><i class="fas fa-truck-loading"></i> Registrar Recepción de Mercancía</h3>
+        <button class="btn-cerrar-panel" (click)="cerrarPanel()">✕</button>
+      </div>
+
+      <div class="recepcion-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>N° Factura del Proveedor <span class="opcional">(opcional)</span></label>
+            <input type="text" [(ngModel)]="facturaRecepcion" class="form-control"
+                   placeholder="Ej: FAC-PRV-001" />
+          </div>
+          <div class="form-group">
+            <label>Notas <span class="opcional">(opcional)</span></label>
+            <input type="text" [(ngModel)]="notasRecepcion" class="form-control"
+                   placeholder="Observaciones generales..." />
+          </div>
+        </div>
+
+        <table class="tabla-recepcion">
+          <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Solicitado</th>
+            <th>Cantidad Recibida</th>
+            <th>Estado</th>
+            <th>Observación</th>
+            <th>Fecha Caducidad</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let item of recepcionDetalles">
+            <td>{{ item.producto_nombre }}</td>
+            <td>{{ item.cantidad_solicitada }}</td>
+            <td>
+              <input type="number" [(ngModel)]="item.cantidad_recibida"
+                     min="0" [max]="item.cantidad_solicitada"
+                     class="input-cantidad" />
+            </td>
+            <td>
+              <select [(ngModel)]="item.estado" class="select-estado"
+                      [class.no-conforme]="item.estado === 'NO_CONFORME'">
+                <option value="CONFORME">✅ Conforme</option>
+                <option value="NO_CONFORME">❌ No Conforme</option>
+              </select>
+            </td>
+            <td>
+              <input type="text" [(ngModel)]="item.observacion"
+                     class="input-obs"
+                     [required]="item.estado === 'NO_CONFORME'"
+                     [placeholder]="item.estado === 'NO_CONFORME' ? 'Obligatorio...' : 'Opcional...'" />
+            </td>
+            <td>
+              <input type="date" [(ngModel)]="item.fecha_caducidad"
+                     class="input-fecha" [min]="hoy" />
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <div class="panel-footer">
+          <button class="btn-cancelar-panel" (click)="cerrarPanel()">Cancelar</button>
+          <button class="btn-guardar-panel" (click)="guardarRecepcion()" [disabled]="procesando">
+            <i class="fas fa-save"></i>
+            {{ procesando ? 'Guardando...' : 'Registrar Recepción' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL: Factura -->
+    <div class="panel-factura" *ngIf="panelActivo === 'factura'">
+      <div class="panel-header">
+        <h3><i class="fas fa-file-invoice-dollar"></i> Registrar Factura del Proveedor</h3>
+        <button class="btn-cerrar-panel" (click)="cerrarPanel()">✕</button>
+      </div>
+
+      <div class="factura-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>N° Factura <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="facturaNumero" class="form-control"
+                   placeholder="Opcional — se genera automático si se deja vacío" />
+          </div>
+          <div class="form-group">
+            <label>Fecha de Emisión <span class="req">*</span></label>
+            <input type="date" [(ngModel)]="facturaFechaEmision" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Fecha de Vencimiento <span class="opcional">(opcional)</span></label>
+            <input type="date" [(ngModel)]="facturaFechaVencimiento" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Monto Total <span class="calculado">(calculado automáticamente)</span></label>
+            <input type="number" [(ngModel)]="facturaMontoTotal"
+                   class="form-control input-readonly" readonly />
+            <small class="hint">Basado en {{ fmt(facturaMontoTotal) }} de mercancía recibida</small>
+          </div>
+        </div>
+
+        <div class="panel-footer">
+          <button class="btn-cancelar-panel" (click)="cerrarPanel()">Cancelar</button>
+          <button class="btn-guardar-panel" (click)="guardarFactura()" [disabled]="procesando">
+            <i class="fas fa-save"></i>
+            {{ procesando ? 'Guardando...' : 'Registrar Factura' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

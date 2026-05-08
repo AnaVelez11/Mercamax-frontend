@@ -1,0 +1,127 @@
+<!-- src/app/compras/crear-orden/crear-orden.component.html -->
+<div class="crear-container">
+
+  <div class="page-header">
+    <div>
+      <h2><i class="fas fa-file-alt"></i> Nueva Orden de Compra</h2>
+      <p>Completa los datos del pedido al proveedor</p>
+    </div>
+    <button class="btn-cancelar" (click)="cancelar()">
+      <i class="fas fa-arrow-left"></i> Volver
+    </button>
+  </div>
+
+  <div class="form-grid">
+
+    <!-- DATOS GENERALES -->
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-info-circle"></i> Datos Generales</h3>
+
+      <div class="form-group">
+        <label>Proveedor <span class="req">*</span></label>
+        <select [(ngModel)]="proveedorSeleccionado"
+                (change)="onProveedorChange()" class="form-control">
+          <option [ngValue]="null" disabled>Selecciona un proveedor...</option>
+          <option *ngFor="let p of proveedores" [value]="p.id">{{ p.nombre }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Fecha Estimada de Entrega <span class="req">*</span></label>
+        <input type="date" [(ngModel)]="fechaEstimadaEntrega"
+               [min]="fechaMinima" class="form-control" />
+      </div>
+
+      <div class="form-group">
+        <label>Notas <span class="opcional">(opcional)</span></label>
+        <textarea [(ngModel)]="notas" class="form-control textarea"
+                  placeholder="Instrucciones especiales, condiciones de entrega..."></textarea>
+      </div>
+    </div>
+
+    <!-- AGREGAR PRODUCTOS -->
+    <div class="card">
+      <h3 class="card-title"><i class="fas fa-boxes"></i> Agregar Productos</h3>
+
+      <div class="agregar-grid">
+        <div class="form-group">
+          <label>Producto</label>
+          <select [(ngModel)]="productoSeleccionado"
+                  (change)="onProductoChange()" class="form-control">
+            <option [ngValue]="null" disabled>
+              {{ proveedorSeleccionado ? 'Selecciona...' : 'Primero selecciona un proveedor' }}
+            </option>
+            <option *ngFor="let p of productosFiltrados" [value]="p.id">
+              {{ p.nombre }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Cantidad</label>
+          <input type="number" [(ngModel)]="cantidadItem" min="1" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>Costo Unitario</label>
+          <input type="number" [(ngModel)]="costoItem" min="0" class="form-control"
+                 placeholder="$0" />
+        </div>
+        <button class="btn-agregar" (click)="agregarItem()">
+          <i class="fas fa-plus"></i> Agregar
+        </button>
+      </div>
+
+      <!-- Tabla de ítems -->
+      <div class="tabla-items-container" *ngIf="items.length > 0">
+        <table class="tabla-items">
+          <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Costo Unit.</th>
+            <th>Subtotal</th>
+            <th></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let item of items; let i = index">
+            <td>{{ item.producto_nombre }}</td>
+            <td>{{ item.cantidad_solicitada }}</td>
+            <td>{{ fmt(item.costo_unitario) }}</td>
+            <td><strong>{{ fmt(item.cantidad_solicitada * item.costo_unitario) }}</strong></td>
+            <td>
+              <button class="btn-eliminar-item" (click)="eliminarItem(i)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+          <tfoot>
+          <tr>
+            <td colspan="3" class="total-label">TOTAL ORDEN</td>
+            <td class="total-valor" colspan="2">{{ fmt(totalOrden) }}</td>
+          </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="sin-items" *ngIf="items.length === 0">
+        <i class="fas fa-box-open"></i>
+        <p>Agrega productos a la orden</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTÓN GUARDAR -->
+  <div class="footer-acciones">
+    <div class="resumen-total" *ngIf="items.length > 0">
+      <span>Total: <strong>{{ fmt(totalOrden) }}</strong></span>
+      <span class="items-count">{{ items.length }} producto(s)</span>
+    </div>
+    <button class="btn-guardar" (click)="guardar()" [disabled]="guardando">
+      <i class="fas fa-save"></i>
+      {{ guardando ? 'Guardando...' : 'Crear Orden de Compra' }}
+    </button>
+  </div>
+
+</div>
